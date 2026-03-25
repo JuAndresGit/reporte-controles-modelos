@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reporte de Controles — Modelos de Procesos</title>
+  <meta name="description" content="Dashboard interactivo de desempeño en controles clase a clase del curso Modelos de Procesos">
+  <link rel="stylesheet" href="index.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="data.js"></script>
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-effects">
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="header-title">
+        <h1>Reporte de Controles</h1>
+        <span class="subtitle">Modelos de Procesos — Semestre 2026-1</span>
+      </div>
+      <div class="header-controls">
+        <div class="section-selector" id="sectionSelector">
+          <button class="section-btn active" data-section="combined" id="btn-combined">Ambas Secciones</button>
+          <button class="section-btn" data-section="section1" id="btn-section1">Sección 1</button>
+          <button class="section-btn" data-section="section2" id="btn-section2">Sección 2</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Summary Cards -->
+  <section class="summary-cards" id="summaryCards">
+    <div class="summary-card" id="card-students">
+      <div class="label">Estudiantes</div>
+      <div class="value" id="val-students">—</div>
+      <div class="detail" id="detail-students"></div>
+    </div>
+    <div class="summary-card" id="card-avgTotal">
+      <div class="label">Promedio Total</div>
+      <div class="value" id="val-avgTotal">—</div>
+      <div class="detail" id="detail-avgTotal"></div>
+    </div>
+    <div class="summary-card" id="card-participation">
+      <div class="label">Participación Promedio</div>
+      <div class="value" id="val-participation">—</div>
+      <div class="detail" id="detail-participation"></div>
+    </div>
+    <div class="summary-card" id="card-approval">
+      <div class="label">Aprobación Promedio</div>
+      <div class="value" id="val-approval">—</div>
+      <div class="detail" id="detail-approval"></div>
+    </div>
+  </section>
+
+  <!-- Charts -->
+  <section class="charts-grid" id="chartsGrid">
+    <!-- 1. Cumulative Lines -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Puntajes Acumulados</h2>
+        <span class="badge badge-purple">Acumulado</span>
+      </div>
+      <p class="chart-description">Evolución acumulada del puntaje mínimo, promedio, máximo y la línea de nota 7 (80% del máximo acumulado) a lo largo de los controles.</p>
+      <div class="chart-container">
+        <canvas id="chartCumulative"></canvas>
+      </div>
+    </div>
+
+    <div class="charts-row-2">
+      <!-- 2. Average per control (responded only) -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Promedio por Control (Respondidos)</h2>
+          <span class="badge badge-cyan">Promedio</span>
+        </div>
+        <p class="chart-description">Puntaje promedio de los estudiantes que sí contestaron cada control (puntaje &gt; 0).</p>
+        <div class="chart-container">
+          <canvas id="chartAvgResponded"></canvas>
+        </div>
+      </div>
+
+      <!-- 3. Participation -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Estudiantes que Respondieron</h2>
+          <span class="badge badge-amber">Participación</span>
+        </div>
+        <p class="chart-description">Cantidad de estudiantes que respondieron cada control (puntaje &gt; 0).</p>
+        <div class="chart-container">
+          <canvas id="chartParticipation"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row-2">
+      <!-- 4. Boxplot (simulated with floating bars) -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Distribución por Control</h2>
+          <span class="badge badge-green">Boxplot</span>
+        </div>
+        <p class="chart-description">Rango intercuartílico (Q1–Q3) con barra, mediana (línea) y mín/máx por control.</p>
+        <div class="chart-container">
+          <canvas id="chartBoxplot"></canvas>
+        </div>
+      </div>
+
+      <!-- 5. Approval % -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h2>Tasa de Aprobación por Control</h2>
+          <span class="badge badge-pink">≥ 60%</span>
+        </div>
+        <p class="chart-description">Porcentaje de estudiantes con puntaje ≥ 3 (60% de 5) en cada control.</p>
+        <div class="chart-container">
+          <canvas id="chartApproval"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Score Distribution Stacked -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Distribución de Puntajes</h2>
+        <span class="badge badge-red">Distribución</span>
+      </div>
+      <p class="chart-description">Distribución completa de puntajes (0 a 5) por cada control en barras apiladas.</p>
+      <div class="chart-container">
+        <canvas id="chartDistribution"></canvas>
+      </div>
+    </div>
+
+    <!-- 7. Heatmap -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Mapa de Calor Individual</h2>
+        <span class="badge badge-purple">Heatmap</span>
+      </div>
+      <p class="chart-description">Vista completa de cada estudiante × cada control, coloreado por puntaje obtenido.</p>
+      <div class="heatmap-wrapper" id="heatmapWrapper">
+        <!-- Generated by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison Section (always visible) -->
+  <section class="comparison-section">
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Comparación Sección 1 vs Sección 2</h2>
+        <span class="badge badge-cyan">Comparativo</span>
+      </div>
+      <p class="chart-description">Promedios por control de ambas secciones lado a lado.</p>
+      <div class="chart-container">
+        <canvas id="chartComparison"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Generado el 25 de marzo de 2026 — Dashboard de Controles · Modelos de Procesos
+  </footer>
+
+<script>
+// ============================================================
+// DASHBOARD LOGIC
+// ============================================================
+
+const D = REPORT_DATA;
+let currentSection = 'combined';
+let charts = {};
+
+// Color palette
+const COLORS = {
+  indigo: 'rgba(99, 102, 241, 1)',
+  indigoFade: 'rgba(99, 102, 241, 0.15)',
+  cyan: 'rgba(6, 182, 212, 1)',
+  cyanFade: 'rgba(6, 182, 212, 0.15)',
+  amber: 'rgba(245, 158, 11, 1)',
+  amberFade: 'rgba(245, 158, 11, 0.15)',
+  green: 'rgba(16, 185, 129, 1)',
+  greenFade: 'rgba(16, 185, 129, 0.15)',
+  red: 'rgba(239, 68, 68, 1)',
+  redFade: 'rgba(239, 68, 68, 0.15)',
+  pink: 'rgba(236, 72, 153, 1)',
+  pinkFade: 'rgba(236, 72, 153, 0.15)',
+  purple: 'rgba(139, 92, 246, 1)',
+  purpleFade: 'rgba(139, 92, 246, 0.15)',
+  white30: 'rgba(255, 255, 255, 0.3)',
+  white10: 'rgba(255, 255, 255, 0.1)',
+};
+
+const DIST_COLORS = [
+  'rgba(239, 68, 68, 0.8)',   // 0 - red
+  'rgba(245, 158, 11, 0.7)',  // 1 - amber
+  'rgba(251, 191, 36, 0.7)',  // 2 - yellow
+  'rgba(16, 185, 129, 0.7)',  // 3 - green
+  'rgba(6, 182, 212, 0.8)',   // 4 - cyan
+  'rgba(99, 102, 241, 0.85)', // 5 - indigo
+];
+
+// Chart.js defaults
+Chart.defaults.color = '#94a3b8';
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)';
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.95)';
+Chart.defaults.plugins.tooltip.padding = 12;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.titleFont = { weight: '600', size: 13 };
+Chart.defaults.animation.duration = 800;
+Chart.defaults.animation.easing = 'easeOutQuart';
+
+function getData() {
+  return D[currentSection];
+}
+
+// ============================================================
+// SUMMARY CARDS
+// ============================================================
+function updateSummary() {
+  const d = getData();
+  document.getElementById('val-students').textContent = d.numStudents;
+  document.getElementById('detail-students').textContent = `${d.controlLabels.length} controles evaluados`;
+
+  // Average total
+  const totals = d.heatmap.totals;
+  const avgTotal = (totals.reduce((a, b) => a + b, 0) / totals.length).toFixed(1);
+  const maxPossible = d.controlLabels.length * d.maxPerControl;
+  document.getElementById('val-avgTotal').textContent = avgTotal;
+  document.getElementById('detail-avgTotal').textContent = `de ${maxPossible} pts posibles`;
+
+  // Average participation
+  const avgPart = (d.respondedCounts.reduce((a, b) => a + b, 0) / d.respondedCounts.length).toFixed(0);
+  const partPct = ((avgPart / d.numStudents) * 100).toFixed(0);
+  document.getElementById('val-participation').textContent = `${partPct}%`;
+  document.getElementById('detail-participation').textContent = `~${avgPart} de ${d.numStudents} por control`;
+
+  // Average approval
+  const avgApproval = (d.approvalPcts.reduce((a, b) => a + b, 0) / d.approvalPcts.length).toFixed(0);
+  document.getElementById('val-approval').textContent = `${avgApproval}%`;
+  document.getElementById('detail-approval').textContent = `obtienen ≥ 3 de 5 pts`;
+}
+
+// ============================================================
+// CHART 1: CUMULATIVE LINES
+// ============================================================
+function createCumulativeChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartCumulative').getContext('2d');
+
+  if (charts.cumulative) charts.cumulative.destroy();
+
+  charts.cumulative = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: d.controlLabels,
+      datasets: [
+        {
+          label: 'Puntaje Máximo',
+          data: d.cumulativeMaxs,
+          borderColor: COLORS.indigo,
+          backgroundColor: COLORS.indigoFade,
+          fill: false,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+          tension: 0.3,
+        },
+        {
+          label: 'Nota 7 (80% del máximo)',
+          data: d.cumulativeNota7,
+          borderColor: COLORS.amber,
+          backgroundColor: COLORS.amberFade,
+          borderDash: [8, 4],
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2.5,
+          tension: 0.3,
+        },
+        {
+          label: 'Puntaje Promedio',
+          data: d.cumulativeAvgs,
+          borderColor: COLORS.cyan,
+          backgroundColor: COLORS.cyanFade,
+          fill: true,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+          tension: 0.3,
+        },
+        {
+          label: 'Puntaje Mínimo',
+          data: d.cumulativeMins,
+          borderColor: COLORS.red,
+          backgroundColor: COLORS.redFade,
+          fill: false,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0.3,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterBody: (items) => {
+              const idx = items[0].dataIndex;
+              const maxAcum = d.cumulativeMaxs[idx];
+              return `\nMáximo posible: ${maxAcum} pts`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: { display: true, text: 'Puntaje Acumulado', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          title: { display: true, text: 'Control', font: { weight: '600' } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART 2: AVERAGE PER CONTROL (RESPONDED ONLY)
+// ============================================================
+function createAvgRespondedChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartAvgResponded').getContext('2d');
+
+  if (charts.avgResponded) charts.avgResponded.destroy();
+
+  // Create gradient
+  const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+  gradient.addColorStop(0, 'rgba(6, 182, 212, 0.9)');
+  gradient.addColorStop(1, 'rgba(99, 102, 241, 0.9)');
+
+  charts.avgResponded = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.controlLabels,
+      datasets: [{
+        label: 'Promedio (respondidos)',
+        data: d.avgsResponded,
+        backgroundColor: gradient,
+        borderColor: 'rgba(6, 182, 212, 0.3)',
+        borderWidth: 1,
+        borderRadius: 6,
+        borderSkipped: false,
+        maxBarThickness: 50,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: (item) => {
+              const idx = item.dataIndex;
+              return `Promedio general: ${d.avgs[idx]} pts\nRespondieron: ${d.respondedCounts[idx]} de ${d.numStudents}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 5.5,
+          title: { display: true, text: 'Puntaje', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART 3: PARTICIPATION
+// ============================================================
+function createParticipationChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartParticipation').getContext('2d');
+
+  if (charts.participation) charts.participation.destroy();
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 340);
+  gradient.addColorStop(0, 'rgba(245, 158, 11, 0.9)');
+  gradient.addColorStop(1, 'rgba(236, 72, 153, 0.9)');
+
+  const absentData = d.respondedCounts.map(c => d.numStudents - c);
+
+  charts.participation = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.controlLabels,
+      datasets: [
+        {
+          label: 'Respondieron',
+          data: d.respondedCounts,
+          backgroundColor: gradient,
+          borderRadius: { topLeft: 6, topRight: 6 },
+          borderSkipped: false,
+          maxBarThickness: 50,
+        },
+        {
+          label: 'No respondieron',
+          data: absentData,
+          backgroundColor: 'rgba(255, 255, 255, 0.06)',
+          borderRadius: { topLeft: 6, topRight: 6 },
+          borderSkipped: false,
+          maxBarThickness: 50,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            afterBody: (items) => {
+              const idx = items[0].dataIndex;
+              const pct = ((d.respondedCounts[idx] / d.numStudents) * 100).toFixed(0);
+              return `\n${pct}% de participación`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          title: { display: true, text: 'Estudiantes', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          stacked: true,
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART 4: BOXPLOT (simulated)
+// ============================================================
+function createBoxplotChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartBoxplot').getContext('2d');
+
+  if (charts.boxplot) charts.boxplot.destroy();
+
+  // We simulate boxplots using floating bars for IQR and error-bar-like lines
+  const iqrData = d.boxplot.map(b => [b.q1, b.q3]);
+  const medians = d.boxplot.map(b => b.median);
+  const means = d.boxplot.map(b => b.mean);
+  const mins = d.boxplot.map(b => b.min);
+  const maxs = d.boxplot.map(b => b.max);
+
+  charts.boxplot = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.controlLabels,
+      datasets: [
+        {
+          label: 'Rango IQR (Q1–Q3)',
+          data: iqrData,
+          backgroundColor: 'rgba(16, 185, 129, 0.35)',
+          borderColor: 'rgba(16, 185, 129, 0.8)',
+          borderWidth: 1.5,
+          borderRadius: 4,
+          borderSkipped: false,
+          maxBarThickness: 45,
+        },
+        {
+          label: 'Mediana',
+          type: 'line',
+          data: medians,
+          borderColor: COLORS.amber,
+          backgroundColor: COLORS.amber,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointStyle: 'rectRot',
+          borderWidth: 0,
+          showLine: false,
+        },
+        {
+          label: 'Media',
+          type: 'line',
+          data: means,
+          borderColor: COLORS.cyan,
+          backgroundColor: COLORS.cyan,
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          pointStyle: 'triangle',
+          borderWidth: 0,
+          showLine: false,
+        },
+        {
+          label: 'Mínimo',
+          type: 'line',
+          data: mins,
+          borderColor: COLORS.red,
+          backgroundColor: COLORS.redFade,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: 'crossRot',
+          borderWidth: 0,
+          showLine: false,
+        },
+        {
+          label: 'Máximo',
+          type: 'line',
+          data: maxs,
+          borderColor: COLORS.indigo,
+          backgroundColor: COLORS.indigoFade,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          pointStyle: 'star',
+          borderWidth: 0,
+          showLine: false,
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const idx = item.dataIndex;
+              const b = d.boxplot[idx];
+              if (item.datasetIndex === 0) {
+                return `IQR: ${b.q1} – ${b.q3}`;
+              }
+              return `${item.dataset.label}: ${item.raw}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 5.5,
+          title: { display: true, text: 'Puntaje', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART 5: APPROVAL RATE
+// ============================================================
+function createApprovalChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartApproval').getContext('2d');
+
+  if (charts.approval) charts.approval.destroy();
+
+  // Color bars by approval level
+  const barColors = d.approvalPcts.map(p => {
+    if (p >= 80) return 'rgba(16, 185, 129, 0.85)';
+    if (p >= 60) return 'rgba(6, 182, 212, 0.85)';
+    if (p >= 40) return 'rgba(245, 158, 11, 0.85)';
+    return 'rgba(239, 68, 68, 0.85)';
+  });
+
+  charts.approval = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.controlLabels,
+      datasets: [{
+        label: '% Aprobación (≥ 3 pts)',
+        data: d.approvalPcts,
+        backgroundColor: barColors,
+        borderRadius: 6,
+        borderSkipped: false,
+        maxBarThickness: 50,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.raw}% de los estudiantes aprobaron`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: { display: true, text: '% Aprobación', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' },
+          ticks: { callback: v => v + '%' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// CHART 6: SCORE DISTRIBUTION STACKED
+// ============================================================
+function createDistributionChart() {
+  const d = getData();
+  const ctx = document.getElementById('chartDistribution').getContext('2d');
+
+  if (charts.distribution) charts.distribution.destroy();
+
+  const datasets = [];
+  for (let score = 0; score <= 5; score++) {
+    datasets.push({
+      label: `${score} pts`,
+      data: d.distributions.map(dist => dist[score]),
+      backgroundColor: DIST_COLORS[score],
+      borderRadius: score === 5 ? { topLeft: 4, topRight: 4 } : 0,
+      borderSkipped: false,
+      maxBarThickness: 50,
+    });
+  }
+
+  charts.distribution = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: d.controlLabels,
+      datasets: datasets
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              const pct = ((item.raw / d.numStudents) * 100).toFixed(0);
+              return `${item.dataset.label}: ${item.raw} estudiantes (${pct}%)`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          stacked: true,
+          title: { display: true, text: 'Estudiantes', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          stacked: true,
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// HEATMAP TABLE
+// ============================================================
+function createHeatmap() {
+  const d = getData();
+  const wrapper = document.getElementById('heatmapWrapper');
+
+  // Sort students by total descending
+  const indices = d.heatmap.names.map((_, i) => i);
+  indices.sort((a, b) => d.heatmap.totals[b] - d.heatmap.totals[a]);
+
+  const maxTotal = d.controlLabels.length * d.maxPerControl;
+
+  let html = '<table class="heatmap-table"><thead><tr><th>#</th><th>Estudiante</th>';
+  d.controlLabels.forEach(c => html += `<th>${c}</th>`);
+  html += '<th>Total</th></tr></thead><tbody>';
+
+  indices.forEach((idx, rank) => {
+    const name = d.heatmap.names[idx];
+    const scores = d.heatmap.scores[idx];
+    const total = d.heatmap.totals[idx];
+    const totalPct = total / maxTotal;
+
+    let totalClass = 'heat-total-low';
+    if (totalPct >= 0.8) totalClass = 'heat-total-top';
+    else if (totalPct >= 0.6) totalClass = 'heat-total-high';
+    else if (totalPct >= 0.4) totalClass = 'heat-total-mid';
+
+    html += `<tr><td>${rank + 1}</td><td title="${name}">${name}</td>`;
+    scores.forEach(s => {
+      html += `<td class="heat-${s}">${s}</td>`;
+    });
+    html += `<td class="${totalClass}">${total}</td></tr>`;
+  });
+
+  html += '</tbody></table>';
+  wrapper.innerHTML = html;
+}
+
+// ============================================================
+// CHART 7: COMPARISON SECTION 1 vs SECTION 2
+// ============================================================
+function createComparisonChart() {
+  const ctx = document.getElementById('chartComparison').getContext('2d');
+
+  if (charts.comparison) charts.comparison.destroy();
+
+  const s1 = D.section1;
+  const s2 = D.section2;
+
+  charts.comparison = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: s1.controlLabels,
+      datasets: [
+        {
+          label: 'Sección 1 (promedio respondidos)',
+          data: s1.avgsResponded,
+          backgroundColor: 'rgba(99, 102, 241, 0.75)',
+          borderColor: 'rgba(99, 102, 241, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          borderSkipped: false,
+          maxBarThickness: 40,
+        },
+        {
+          label: 'Sección 2 (promedio respondidos)',
+          data: s2.avgsResponded,
+          backgroundColor: 'rgba(6, 182, 212, 0.75)',
+          borderColor: 'rgba(6, 182, 212, 1)',
+          borderWidth: 1,
+          borderRadius: 6,
+          borderSkipped: false,
+          maxBarThickness: 40,
+        },
+        {
+          label: 'Sección 1 (participación %)',
+          type: 'line',
+          data: s1.respondedCounts.map(c => (c / s1.numStudents * 5)),
+          borderColor: 'rgba(139, 92, 246, 0.9)',
+          backgroundColor: 'rgba(139, 92, 246, 0.1)',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0.3,
+          yAxisID: 'y',
+        },
+        {
+          label: 'Sección 2 (participación %)',
+          type: 'line',
+          data: s2.respondedCounts.map(c => (c / s2.numStudents * 5)),
+          borderColor: 'rgba(236, 72, 153, 0.9)',
+          backgroundColor: 'rgba(236, 72, 153, 0.1)',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2,
+          tension: 0.3,
+          borderDash: [5, 3],
+          yAxisID: 'y',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (item) => {
+              if (item.datasetIndex >= 2) {
+                // Participation lines - show real %
+                const secData = item.datasetIndex === 2 ? s1 : s2;
+                const secName = item.datasetIndex === 2 ? 'S1' : 'S2';
+                const pct = ((secData.respondedCounts[item.dataIndex] / secData.numStudents) * 100).toFixed(0);
+                return `${secName} participación: ${pct}%`;
+              }
+              return `${item.dataset.label}: ${item.raw} pts`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 5.5,
+          title: { display: true, text: 'Puntaje / Participación (normalizada)', font: { weight: '600' } },
+          grid: { color: 'rgba(255,255,255,0.04)' }
+        },
+        x: {
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+
+// ============================================================
+// SECTION SELECTOR
+// ============================================================
+document.querySelectorAll('.section-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.section-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentSection = btn.dataset.section;
+    updateAll();
+  });
+});
+
+// ============================================================
+// UPDATE ALL
+// ============================================================
+function updateAll() {
+  updateSummary();
+  createCumulativeChart();
+  createAvgRespondedChart();
+  createParticipationChart();
+  createBoxplotChart();
+  createApprovalChart();
+  createDistributionChart();
+  createHeatmap();
+  createComparisonChart();
+}
+
+// Initial render
+updateAll();
+
+</script>
+</body>
+</html>

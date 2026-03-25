@@ -1,0 +1,4 @@
+# Python extraction script (not needed for the web dashboard)
+extract_data.py
+__pycache__/
+*.pyc
