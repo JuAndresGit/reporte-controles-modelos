@@ -1,4 +1,10 @@
-# Python extraction script (not needed for the web dashboard)
-extract_data.py
+# Python temporary files
 __pycache__/
 *.pyc
+.ipynb_checkpoints/
+.DS_Store
+
+# Local environment
+.venv/
+env/
+venv/
