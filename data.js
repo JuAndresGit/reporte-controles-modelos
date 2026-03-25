@@ -1,4 +1,4 @@
-// Auto-generated data from Excel
+// Auto-generated data from Excel — 2026-03-25
 const REPORT_DATA = {
   "section1": {
     "controlLabels": [
