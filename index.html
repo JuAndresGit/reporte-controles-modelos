@@ -53,7 +53,7 @@
       <div class="detail" id="detail-participation"></div>
     </div>
     <div class="summary-card" id="card-approval">
-      <div class="label">Aprobación Promedio</div>
+      <div class="label">Controles Sobre 60%</div>
       <div class="value" id="val-approval">—</div>
       <div class="detail" id="detail-approval"></div>
     </div>
@@ -115,10 +115,10 @@
       <!-- 5. Approval % -->
       <div class="chart-card">
         <div class="chart-header">
-          <h2>Tasa de Aprobación por Control</h2>
+          <h2>Estudiantes Sobre 60% por Control</h2>
           <span class="badge badge-pink">≥ 60%</span>
         </div>
-        <p class="chart-description">Porcentaje de estudiantes con puntaje ≥ 3 (60% de 5) en cada control.</p>
+        <p class="chart-description">Porcentaje de estudiantes con puntaje ≥ 3 (60% de 5 pts) en cada control.</p>
         <div class="chart-container">
           <canvas id="chartApproval"></canvas>
         </div>
@@ -249,7 +249,7 @@ function updateSummary() {
   // Average approval
   const avgApproval = (d.approvalPcts.reduce((a, b) => a + b, 0) / d.approvalPcts.length).toFixed(0);
   document.getElementById('val-approval').textContent = `${avgApproval}%`;
-  document.getElementById('detail-approval').textContent = `obtienen ≥ 3 de 5 pts`;
+  document.getElementById('detail-approval').textContent = `puntaje ≥ 3 de 5 pts`;
 }
 
 // ============================================================
@@ -607,7 +607,7 @@ function createApprovalChart() {
     data: {
       labels: d.controlLabels,
       datasets: [{
-        label: '% Aprobación (≥ 3 pts)',
+        label: '% Sobre 60% (≥ 3 pts)',
         data: d.approvalPcts,
         backgroundColor: barColors,
         borderRadius: 6,
@@ -622,7 +622,7 @@ function createApprovalChart() {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (item) => `${item.raw}% de los estudiantes aprobaron`
+            label: (item) => `${item.raw}% de los estudiantes sobre 60%`
           }
         }
       },
@@ -630,7 +630,7 @@ function createApprovalChart() {
         y: {
           beginAtZero: true,
           max: 100,
-          title: { display: true, text: '% Aprobación', font: { weight: '600' } },
+          title: { display: true, text: '% Sobre 60%', font: { weight: '600' } },
           grid: { color: 'rgba(255,255,255,0.04)' },
           ticks: { callback: v => v + '%' }
         },
