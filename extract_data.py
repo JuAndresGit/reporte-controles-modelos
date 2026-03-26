@@ -145,11 +145,17 @@ def compute_stats(section):
         'cumulativeAvgs': cumulative_avgs, 'cumulativeNota7': cumulative_nota7,
         'boxplot': boxplot_data, 'distributions': distributions,
         'heatmap': {
-            'names': [s['name'] for s in students],
+            'names': [s['id'] if s['id'] else "Sin ID" for s in students],
             'scores': [s['scores'] for s in students],
             'totals': [s['total'] for s in students]
         }
     })
+    
+    ranked = sorted(students, key=lambda s: s['total'], reverse=True)
+    stats['ranking'] = {
+        'names': [s['id'] if s['id'] else "Sin ID" for s in ranked[:15]],
+        'totals': [s['total'] for s in ranked[:15]]
+    }
     return stats
 
 def main():
