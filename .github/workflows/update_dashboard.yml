@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'data/reporte.xlsx'
+      - 'extract_data.py'
   schedule:
     - cron: '0 12 */2 * *'
   workflow_dispatch:
