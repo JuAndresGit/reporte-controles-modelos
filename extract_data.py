@@ -81,6 +81,7 @@ def compute_stats(section):
     stats = {
         'controlLabels': section['controlLabels'],
         'numStudents': n_students,
+        'numControls': num_controls,
         'maxPerControl': max_per_control,
     }
 
