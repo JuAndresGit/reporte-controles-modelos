@@ -3374,5 +3374,5 @@ const REPORT_DATA = {
     "Ambas Secciones"
   ],
   "maxPerControl": 5,
-  "generatedAt": "2026-03-26"
+  "generatedAt": "2026-03-27"
 };
