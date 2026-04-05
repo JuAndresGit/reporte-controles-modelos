@@ -854,34 +854,6 @@ document.querySelectorAll('.section-btn').forEach(btn => {
 // UPDATE ALL
 // ============================================================
 function updateAll() {
-  const d = getData();
-  const numControls = d.controlLabels.length;
-  const minWidthPerControl = 80;
-  const threshold = 8;
-
-  // Wrap each chart canvas in a scrollable inner div if many controls
-  document.querySelectorAll('.chart-container').forEach(container => {
-    const canvas = container.querySelector('canvas');
-    if (!canvas) return;
-
-    // Remove existing wrapper if present
-    const existingWrapper = container.querySelector('.chart-scroll-inner');
-    if (existingWrapper) {
-      container.appendChild(canvas);
-      existingWrapper.remove();
-    }
-
-    if (numControls > threshold) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'chart-scroll-inner';
-      wrapper.style.minWidth = (numControls * minWidthPerControl) + 'px';
-      wrapper.style.height = '100%';
-      wrapper.style.position = 'relative';
-      container.appendChild(wrapper);
-      wrapper.appendChild(canvas);
-    }
-  });
-
   updateSummary();
   createCumulativeChart();
   createAvgRespondedChart();
